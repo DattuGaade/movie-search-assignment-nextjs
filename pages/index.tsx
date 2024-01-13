@@ -12,6 +12,7 @@ import {
 import MoviePoster from "../components/MoviePoster";
 import useDebounce from "../hooks/useDebounce";
 
+const defaultSortValue = "popularity.desc"
 export default function Home({ moviesResult }: any) {
   const [searchText, setSearchText] = useState("");
   const [movies, setMovies] = useState<{
@@ -21,6 +22,7 @@ export default function Home({ moviesResult }: any) {
     poster_path: string,
     overview: string,
   }[]>([]);
+  const [sortBy, setSortBy] = useState("")
   const [currentPage, setCurrentPage] = useState(0);
   const [showLoadMore, setShowLoadMore] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -45,10 +47,14 @@ export default function Home({ moviesResult }: any) {
     }
   }, [moviesResult])
 
-  const getPopularMovies = async (pageNo: number) => {
+  const getPopularMovies = async (pageNo: number, sortByValue = '') => {
     setIsLoading(true);
     try {
-      const result = await fetch(`https://api.themoviedb.org/3/movie/popular?&language=en-US&page=${pageNo ? pageNo : (currentPage + 1)}`, {
+      let url = `https://api.themoviedb.org/3/movie/popular?&language=en-US&page=${pageNo ? pageNo : (currentPage + 1)}`
+      if(sortByValue) {
+        url = `${url}&sort_by=${sortByValue}`
+      }
+      const result = await fetch(url, {
         headers: {
           accept: 'application/json',
           Authorization: `Bearer ${process.env.NEXT_PUBLIC_AUTH_TOKEN}`
@@ -81,10 +87,14 @@ export default function Home({ moviesResult }: any) {
     setIsLoading(false);
   }
 
-  const getFilteredMovies = useDebounce(async (pageNo: number, searchStr: string) => {
+  const getFilteredMovies = useDebounce(async (pageNo: number, searchStr: string, sortByValue = '') => {
     setIsLoading(true);
     try {
-      const result = await fetch(`https://api.themoviedb.org/3/search/movie?query=${searchStr ?? ""}&language=en-US&page=${pageNo ? pageNo : (currentPage + 1)}`, {
+      let url = `https://api.themoviedb.org/3/search/movie?query=${searchStr ?? ""}&language=en-US&page=${pageNo ? pageNo : (currentPage + 1)}`
+      if (sortByValue) {
+        url = `${url}&sort_by=${sortByValue}`
+      }
+      const result = await fetch(url, {
         headers: {
           accept: 'application/json',
           Authorization: `Bearer ${process.env.NEXT_PUBLIC_AUTH_TOKEN}`
@@ -123,9 +133,9 @@ export default function Home({ moviesResult }: any) {
     setMovies([]);
     setCurrentPage(0);
     if (searchStr) {
-      getFilteredMovies(1, searchStr);
+      getFilteredMovies(1, searchStr, sortBy);
     } else {
-      getPopularMovies(1);
+      getPopularMovies(1, sortBy);
     }
   }
 
@@ -137,14 +147,21 @@ export default function Home({ moviesResult }: any) {
   }
 
   const handleSortChange = (valueSelected: string | undefined) => {
-    console.log({ valueSelected })
+    setSortBy(valueSelected ?? defaultSortValue)
+    setMovies([]);
+    setCurrentPage(0);
+    if (searchText) {
+      getFilteredMovies(1, searchText, valueSelected);
+    } else {
+      getPopularMovies(1, valueSelected);
+    }
   }
 
   const handleLoadMore = () => {
     if (searchText) {
-      getFilteredMovies(currentPage + 1, searchText);
+      getFilteredMovies(currentPage + 1, searchText, sortBy);
     } else {
-      getPopularMovies(currentPage + 1);
+      getPopularMovies(currentPage + 1, sortBy);
     }
   }
 
@@ -185,7 +202,9 @@ export default function Home({ moviesResult }: any) {
               unmount: { y: 25 },
             }}
             onChange={handleSortChange}
+            value={sortBy}
           >
+            <Option value="">Select None</Option>
             <Option value="popularity.desc">Most Popular</Option>
             <Option value="popularity.asc">Least Popular</Option>
             <Option value="primary_release_date.desc">Latest Releases</Option>

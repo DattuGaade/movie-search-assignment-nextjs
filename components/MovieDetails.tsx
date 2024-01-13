@@ -16,7 +16,7 @@ interface MovieDetailsProps {
 
 const MovieDetails = ({ title, release_date, poster_path, runtime, overview }: MovieDetailsProps) => {
   return (
-    <Card placeholder="Movie details container" className="mt-6 w-2/3">
+    <Card placeholder="Movie details container" className="mt-6 w-1/3">
       <CardHeader placeholder="Movie details poster container" color="blue-gray" className="relative h-56 mt-2">
         <Image
           className="h-56 rounded-md"
