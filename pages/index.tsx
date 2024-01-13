@@ -12,8 +12,6 @@ import {
 import MoviePoster from "../components/MoviePoster";
 import useDebounce from "../hooks/useDebounce";
 
-import { AUTH_TOKEN } from "../constants";
-
 export default function Home({ moviesResult }: any) {
   const [searchText, setSearchText] = useState("");
   const [movies, setMovies] = useState<{
@@ -53,7 +51,7 @@ export default function Home({ moviesResult }: any) {
       const result = await fetch(`https://api.themoviedb.org/3/movie/popular?&language=en-US&page=${pageNo ? pageNo : (currentPage + 1)}`, {
         headers: {
           accept: 'application/json',
-          Authorization: `Bearer ${AUTH_TOKEN}`
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_AUTH_TOKEN}`
         }
       })
       const resultData = await result.json();
@@ -89,7 +87,7 @@ export default function Home({ moviesResult }: any) {
       const result = await fetch(`https://api.themoviedb.org/3/search/movie?query=${searchStr ?? ""}&language=en-US&page=${pageNo ? pageNo : (currentPage + 1)}`, {
         headers: {
           accept: 'application/json',
-          Authorization: `Bearer ${AUTH_TOKEN}`
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_AUTH_TOKEN}`
         }
       })
       const resultData = await result.json();
@@ -155,6 +153,7 @@ export default function Home({ moviesResult }: any) {
 
       <div className="relative">
         <Input
+          crossOrigin=""
           placeholder="Search movies"
           value={searchText}
           onChange={handleTextChange}
@@ -227,7 +226,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const result = await fetch(`https://api.themoviedb.org/3/movie/popular?&language=en-US&page=1`, {
       headers: {
         accept: 'application/json',
-        Authorization: `Bearer ${AUTH_TOKEN}`
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AUTH_TOKEN}`
       }
     });
 

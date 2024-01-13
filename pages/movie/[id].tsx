@@ -6,7 +6,6 @@ import {
 } from "@material-tailwind/react";
 
 import MovieDetailsCard from "../../components/MovieDetails";
-import { AUTH_TOKEN } from '@/constants';
 
 const MovieDetails = ({ movieDetails }: any) => {
   return (
@@ -47,7 +46,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const result = await fetch(`https://api.themoviedb.org/3/movie/${id}?language=en-US`, {
       headers: {
         accept: 'application/json',
-        Authorization: `Bearer ${AUTH_TOKEN}`
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AUTH_TOKEN}`
       }
     });
 
